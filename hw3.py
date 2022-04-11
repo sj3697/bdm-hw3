@@ -45,7 +45,7 @@ if __name__ == '__main__':
   spark = SparkSession(sc)
   product = sc.textFile('/tmp/bdm/keyfood_products.csv')
   pd_price = product.mapPartitionsWithIndex(extractprice)
-  simple_product = sc.textFile(sys.argv[1] if len(sys.argv)>1 else 'keyfood_sample_items')
+  simple_product = sc.textFile('keyfood_sample_items')
   sp_upc = simple_product.mapPartitionsWithIndex(extractupc)
   df1 = spark.createDataFrame(pd_price, schema=['store','upc', 'price'])
   df2 = spark.createDataFrame(sp_upc, schema=['upc', 'name'])
