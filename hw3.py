@@ -50,13 +50,13 @@ if __name__ == '__main__':
   df1 = spark.createDataFrame(pd_price, schema=['store','upc', 'price'])
   df2 = spark.createDataFrame(sp_upc, schema=['upc', 'name'])
   rdd_join = df1.join(df2, on='upc')
-  temp=[]
+  '''temp=[]
   f = open('keyfood_nyc_stores.json') 
   data_json = json.load(f)
   for i in data_json.keys():
     temp.append((i,data_json[i]['communityDistrict'],round(100*data_json[i]['foodInsecurity'])))
   f.close()
   foodstore = spark.createDataFrame(temp, schema=['store','CD','FI'])
-  rdd_join = rdd_join.join(foodstore, on = 'store')
-  outputTask1 = rdd_join.select('name','price','FI')
+  rdd_join = rdd_join.join(foodstore, on = 'store')'''
+  outputTask1 = rdd_join.select('name','price')#,'FI')
   outputTask1.saveAsTextFile(sys.argv[2] if len(sys.argv)>2 else 'Task1_output')
