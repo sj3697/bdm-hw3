@@ -1,4 +1,5 @@
 import csv
+import sys
 import json
 import numpy as np
 import matplotlib.pyplot as plt
@@ -41,22 +42,23 @@ def extractupc(partId, part):
 
 
 if __name__ == '__main__':
-  sc = pyspark.SparkContext.getOrCreate()
-  spark = SparkSession(sc)
+  sc = SparkContext()
   product = sc.textFile('/tmp/bdm/keyfood_products.csv')
   pd_price = product.mapPartitionsWithIndex(extractprice)
-  simple_product = sc.textFile('keyfood_sample_items')
+  outputTask1 = pd_price
+  outputTask1.saveAsTextFile('task1_output')
+  '''simple_product = sc.textFile('keyfood_sample_items')
   sp_upc = simple_product.mapPartitionsWithIndex(extractupc)
   df1 = spark.createDataFrame(pd_price, schema=['store','upc', 'price'])
   df2 = spark.createDataFrame(sp_upc, schema=['upc', 'name'])
   rdd_join = df1.join(df2, on='upc')
-  '''temp=[]
+  temp=[]
   f = open('keyfood_nyc_stores.json') 
   data_json = json.load(f)
   for i in data_json.keys():
     temp.append((i,data_json[i]['communityDistrict'],round(100*data_json[i]['foodInsecurity'])))
   f.close()
   foodstore = spark.createDataFrame(temp, schema=['store','CD','FI'])
-  rdd_join = rdd_join.join(foodstore, on = 'store')'''
-  outputTask1 = rdd_join.select('name','price')#,'FI')
-  outputTask1.saveAsTextFile(sys.argv[2] if len(sys.argv)>2 else 'Task1_output')
+  rdd_join = rdd_join.join(foodstore, on = 'store')
+  outputTask1 = rdd_join.select('name','price','FI')
+  outputTask1.saveAsTextFile(sys.argv[2] if len(sys.argv)>2 else 'task1_output')'''
