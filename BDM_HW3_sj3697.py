@@ -9,7 +9,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
 from pyspark import SparkContext
-spark = SparkSession(sc)
+
 
 
 
@@ -34,6 +34,7 @@ def extractupc(partId, part):
     yield (temp[1], record[1])
 
 def main(sc):
+  spark = SparkSession(sc)
   product = sc.textFile('/tmp/bdm/keyfood_products.csv')
   pd_price = product.mapPartitionsWithIndex(extractproduct)
   simple_product = sc.textFile('keyfood_sample_items')
