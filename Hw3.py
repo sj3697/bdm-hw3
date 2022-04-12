@@ -14,6 +14,6 @@ if __name__=='__main__':
             temp = record[2].split('-')
             if len(price) > 0 and len(temp) > 1:
                 yield (record[0], temp[-1], float(price[0]))
-    pd_price = product.mapPartitionsWithIndex(extractprice)
+    pd_price = product.mapPartitionsWithIndex(extractproduct)
     outputTask1 = pd_price
     outputTask1.saveAsTextFile('task1_output')
