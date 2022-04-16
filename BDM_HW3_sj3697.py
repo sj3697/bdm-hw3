@@ -32,7 +32,7 @@ def main(sc):
                 .mapPartitionsWithIndex(readProducts)
 
   
-  outputTask1.saveAsTextFile(sys.argv[2] if len(sys.argv)>2 else 'Task1_output')
+  outputTask1.saveAsTextFile('Task1_output')
 
 
 
