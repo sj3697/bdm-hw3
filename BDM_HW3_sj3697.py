@@ -15,6 +15,7 @@ from pyspark import SparkContext
 
 
 def main(sc):
+  spark = SparkSession(sc)
   keyfood_store = json.load(open('keyfood_nyc_stores.json','r'))
   sample_items = dict(map(lambda x: (x[0].split('-')[-1],x[1]),
                                      pd.read_csv('keyfood_sample_items.csv').to_numpy()))
