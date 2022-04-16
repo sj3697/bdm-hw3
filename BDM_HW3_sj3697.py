@@ -30,7 +30,7 @@ def main(sc):
                       .dropna(subset=['name'])
 
   
-  outputTask1.saveAsTextFile(sys.argv[2] if len(sys.argv)>2 else 'task1_output')
+  outputTask1.saveAsTable(sys.argv[2] if len(sys.argv)>2 else 'task1_output')
 
 
 
