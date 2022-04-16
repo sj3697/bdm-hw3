@@ -21,11 +21,11 @@ def main(sc):
                                      pd.read_csv('keyfood_sample_items.csv').to_numpy()))
 
   def readProducts(partId, part):
-    if parkId == 0: next(part)
+    if partId == 0: next(part)
     for x in csv.reader(part):
       itemsName = sample_items.get(x[2].split('-')[-1], None)
-      if itemName:
-        yield(itemName,
+      if itemsName:
+        yield(itemsName,
               float(x[5].split()[0].lstrip('$')),
               keyfood_store[x[0]]['foodInsecurity']*100)
   outputTask1 = sc.textFaile('/tmp/bdm/keyfood_products.csv') \
