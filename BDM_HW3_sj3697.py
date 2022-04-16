@@ -15,22 +15,24 @@ from pyspark import SparkContext
 
 
 def main(sc):
-  spark = SparkSession(sc)
+  #spark = SparkSession(sc)
   keyfood_store = json.load(open('keyfood_nyc_stores.json','r'))
   sample_items = dict(map(lambda x: (x[0].split('-')[-1],x[1]),
                                      pd.read_csv('keyfood_sample_items.csv').to_numpy()))
 
-  udfGetName = F.udf(lambda x: sample_items.get(x.split('-')[-1],None), T.StringType())
-  udfGetPrice = F.udf(lambda x: float(x.split()[0].lstrip('$')), T.FloatType())
-  udfGetScore = F.udf(lambda x: keyfood_store[x]['foodInsecurity']*100, T.FloatType())
-
-  outputTask1 = spark.read.csv('/tmp/bdm/keyfood_products.csv',
-                               header=True, escape='"') \
-                      .select(udfGetName('upc').alias('name'), udfGetPrice('price'), udfGetScore('store')) \
-                      .dropna(subset=['name'])
+  def readProducts(partId, part):
+    if parkId == 0: next(part)
+    for x in csv.reader(part):
+      itemsName = sample_items.get(x[2].split('-')[-1], None)
+      if itemName:
+        yield(itemName,
+              float(x[5].split()[0].lstrip('$')),
+              keyfood_store[x[0]]['foodInsecurity']*100)
+  outputTask1 = sc.textFaile('/tmp/bdm/keyfood_products.csv') \
+                .mapPartitionsWithIndex(readProducts)
 
   
-  outputTask1.rdd.saveAsTextFile(sys.argv[2] if len(sys.argv)>2 else 'Task1_output')
+  outputTask1.saveAsTextFile(sys.argv[2] if len(sys.argv)>2 else 'Task1_output')
 
 
 
