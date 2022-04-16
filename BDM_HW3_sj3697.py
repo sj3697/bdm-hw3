@@ -2,6 +2,8 @@ import csv
 import sys
 import json
 import numpy as np
+import pandas as pd
+
 
 
 import pyspark
@@ -12,45 +14,21 @@ from pyspark import SparkContext
 
 
 
-
-
-def extractproduct(partId, part):
-  if partId==0:
-    next(part)
-  import csv
-  import re
-  for record in csv.reader(part):
-    price = re.findall(r"[-+]?(?:\d*\.\d+|\d+)",record[5])
-    temp = record[2].split('-')
-    if len(price) > 0 and len(temp) > 1:
-      yield (record[0], temp[-1], float(price[0]))
-
-def extractupc(partId, part):
-  if partId==0:
-      next(part)
-  import csv
-  for record in csv.reader(part):
-    temp = record[0].split('-')
-    yield (temp[1], record[1])
-
 def main(sc):
-  spark = SparkSession(sc)
-  product = sc.textFile('/tmp/bdm/keyfood_products.csv')
-  pd_price = product.mapPartitionsWithIndex(extractproduct)
-  simple_product = sc.textFile(sys.argv[1] if len(sys.argv)>1 else 'keyfood_sample_items.csv')
-  sp_upc = simple_product.mapPartitionsWithIndex(extractupc)
-  df1 = spark.createDataFrame(pd_price, schema=['store','upc', 'price'])
-  df2 = spark.createDataFrame(sp_upc, schema=['upc', 'name'])
-  rdd_join = df1.join(df2, on='upc')
-  temp=[]
-  f = open('keyfood_nyc_stores.json') 
-  data_json = json.load(f)
-  for i in data_json.keys():
-    temp.append((i,data_json[i]['communityDistrict'],round(100*data_json[i]['foodInsecurity'])))
-  f.close()
-  foodstore = spark.createDataFrame(temp, schema=['store','CD','FI'])
-  rdd_join = rdd_join.join(foodstore, on = 'store')
-  outputTask1 = rdd_join.select('name','price','FI')
+  keyfood_store = json.load(open('keyfood_nyc_stores.json','r'))
+  sample_items = dict(map(lambda x: (x[0].split('-')[-1],x[1]),
+                                     pd.read_csv('keyfood_sample_items.csv').to_numpy()))
+
+  udfGetName = F.udf(lambda x: sample_items.get(x.split('-')[-1],None), T.StringType())
+  udfGetPrice = F.udf(lambda x: float(x.split()[0].lstrip('$')), T.FloatType())
+  udfGetScore = F.udf(lambda x: keyfood_store[x]['foodInsecurity']*100, T.FloatType())
+
+  outputTask1 = spark.read.csv('keyfood_products.csv',
+                               header=True, escape='"') \
+                      .select(udfGetName('upc').alias('name'), udfGetPrice('price'), udfGetScore('store')) \
+                      .dropna(subset=['name'])
+
+  
   outputTask1.saveAsTextFile(sys.argv[2] if len(sys.argv)>2 else 'task1_output')
 
 
