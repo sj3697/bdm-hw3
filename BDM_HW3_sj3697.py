@@ -24,7 +24,7 @@ def main(sc):
   udfGetPrice = F.udf(lambda x: float(x.split()[0].lstrip('$')), T.FloatType())
   udfGetScore = F.udf(lambda x: keyfood_store[x]['foodInsecurity']*100, T.FloatType())
 
-  outputTask1 = spark.read.csv('keyfood_products.csv',
+  outputTask1 = spark.read.csv('/tmp/bdm/keyfood_products.csv',
                                header=True, escape='"') \
                       .select(udfGetName('upc').alias('name'), udfGetPrice('price'), udfGetScore('store')) \
                       .dropna(subset=['name'])
