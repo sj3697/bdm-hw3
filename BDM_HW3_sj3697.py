@@ -30,7 +30,7 @@ def main(sc):
                       .dropna(subset=['name'])
 
   
-  outputTask1.toJavaRDD.saveAsTextFile(sys.argv[2] if len(sys.argv)>2 else 'task1_output')
+  outputTask1.rdd.saveAsTextFile(sys.argv[2] if len(sys.argv)>2 else 'task1_output')
 
 
 
