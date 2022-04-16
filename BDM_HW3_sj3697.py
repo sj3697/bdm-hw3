@@ -28,7 +28,7 @@ def main(sc):
         yield(itemsName,
               float(x[5].split()[0].lstrip('$')),
               keyfood_store[x[0]]['foodInsecurity']*100)
-  outputTask1 = sc.textFaile('/tmp/bdm/keyfood_products.csv') \
+  outputTask1 = sc.textFile('/tmp/bdm/keyfood_products.csv') \
                 .mapPartitionsWithIndex(readProducts)
 
   
